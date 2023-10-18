@@ -24,10 +24,15 @@ def disco_ball():
 	async def play(ctx):
 		print(repr(ctx.author.voice))
 		user_voice = ctx.author.voice
-		if user_voice is None or user_voice.channel is None: return
-		#voice_channel = user_voice.channel
-		#voice = await user_voice.channel.connect()
-		dlman.download(video)
+		voice_channel = user_voice.channel if user_voice is not None else None
+		if voice_channel is None: return
+		metadata = dlman.download(video)
+		print(metadata)
+		voice = await user_voice.channel.connect()
+		
+		video_source = await discord.FFmpegOpusAudio.from_probe(metadata['filename'])
+		voice.play(video_source)
+		voice.disconnect()
 
 	@bot.event
 	async def on_presence_update(before, after):
