@@ -1,21 +1,11 @@
 import discord
 from discord.ext import commands
 
-import youtube_dl
-
-ydl_opts = {
-	'format': 'bestaudio/best',
-	'postprocessors': [{
-		'key': 'FFmpegExtractAudio',
-		'preferredcodec': 'mp3',
-		'preferredquality': '192'
-	}]
-}
-def download_video(url):
-	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-		ydl.download([ url ])
+from download_manager import DownloadManager
 
 def disco_ball():
+	dlman = DownloadManager()
+
 	intents = discord.Intents.default()
 	intents.message_content = True
 	intents.presences = True
@@ -37,7 +27,7 @@ def disco_ball():
 		if user_voice is None or user_voice.channel is None: return
 		#voice_channel = user_voice.channel
 		#voice = await user_voice.channel.connect()
-		download_video(video)
+		dlman.download(video)
 
 	@bot.event
 	async def on_presence_update(before, after):
