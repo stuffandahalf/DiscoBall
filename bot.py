@@ -1,3 +1,5 @@
+import sys
+
 import discord
 from discord.ext import commands
 
@@ -18,21 +20,31 @@ def disco_ball():
 		await ctx.send('pong')
 
 	#video = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-	video = 'https://www.youtube.com/watch?v=izGwDsrQ1eQ'
+	#video = 'https://www.youtube.com/watch?v=izGwDsrQ1eQ'
 
 	@bot.command()
 	async def play(ctx):
-		print(repr(ctx.author.voice))
+		args = ctx.message.content if ctx.message is not None else ''
+		args = args.split()
+		args = args[1:]
 		user_voice = ctx.author.voice
 		voice_channel = user_voice.channel if user_voice is not None else None
 		if voice_channel is None: return
-		metadata = dlman.download(video)
-		print(metadata)
 		voice = await user_voice.channel.connect()
+		for video_url in args:
+			try:
+				metadata = dlman.download(video_url)
+				if metadata is None:
+					# video failed to download
+					raise Exception("failed to download", video_url)
+				#print(metadata)
+				#voice = await user_voice.channel.connect()
 		
-		video_source = await discord.FFmpegOpusAudio.from_probe(metadata['filename'])
-		voice.play(video_source)
-		voice.disconnect()
+				video_source = await discord.FFmpegOpusAudio.from_probe(metadata['filename'])
+				await voice.play(video_source)
+			except Exception as e:
+				print(repr(e), file=sys.stderr)
+		#await voice.disconnect()
 
 	@bot.event
 	async def on_presence_update(before, after):
